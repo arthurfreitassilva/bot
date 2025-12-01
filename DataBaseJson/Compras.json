@@ -1,0 +1,11 @@
+{
+    "Compras": [
+        {
+            "id": "Aprovado Manualmente",
+            "method": "pix",
+            "user": "1381172976455651358",
+            "valor": 1,
+            "data": 1750742451029
+        }
+    ]
+}

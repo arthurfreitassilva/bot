@@ -1,0 +1,99 @@
+{
+    "email": "h.dhosting22@gmail.com",
+    "password": "dGf8ikzEvUjVQz6",
+    "verificationCode": "4NAYR6",
+    "vendasstatus": false,
+    "Emojis_EntregAbaixo": [
+        {
+            "id": "1444512705934524582",
+            "name": "eb1"
+        },
+        {
+            "id": "1444512709105422488",
+            "name": "eb2"
+        },
+        {
+            "id": "1444512712397684816",
+            "name": "eb3"
+        },
+        {
+            "id": "1444512715317051403",
+            "name": "eb4"
+        },
+        {
+            "id": "1444512718785876068",
+            "name": "eb5"
+        },
+        {
+            "id": "1444512721369567262",
+            "name": "eb6"
+        },
+        {
+            "id": "1444512723701596296",
+            "name": "eb7"
+        },
+        {
+            "id": "1444512725987229758",
+            "name": "eb8"
+        },
+        {
+            "id": "1444512728675778660",
+            "name": "eb9"
+        }
+    ],
+    "Emojis_EntregAuto": [
+        {
+            "id": "1444512731427242194",
+            "name": "ea1"
+        },
+        {
+            "id": "1444512733746823298",
+            "name": "ea2"
+        },
+        {
+            "id": "1444512735680532635",
+            "name": "ea3"
+        },
+        {
+            "id": "1444512738356494336",
+            "name": "ea4"
+        },
+        {
+            "id": "1444512740558508165",
+            "name": "ea5"
+        },
+        {
+            "id": "1444512742848598086",
+            "name": "ea6"
+        },
+        {
+            "id": "1444512745620766901",
+            "name": "ea7"
+        },
+        {
+            "id": "1444512748900716674",
+            "name": "ea8"
+        }
+    ],
+    "Status1": "Tropa da MBC ClipStore!!",
+    "Status2": "Cuida clica no link: discord.gg/X6SCYCdRhN",
+    "Cores": {
+        "Principal": "#000000",
+        "Processamento": "#606361",
+        "Sucesso": "#00ff44",
+        "Erro": "#ff0000",
+        "Finalizado": "#00ff2a"
+    },
+    "ConfigRoles": {
+        "cargoadm": "1444432769810825226",
+        "cargosup": "1444432773556338832",
+        "cargoCliente": "1444432774563106967",
+        "cargomembro": "1444432775783383303"
+    },
+    "ConfigChannels": {
+        "entradas": "1444432898911506492",
+        "feedbackticket": "1444432990963896531",
+        "feedback": "1444432990963896531",
+        "saídas": "1444433194332983347"
+    }
+}
