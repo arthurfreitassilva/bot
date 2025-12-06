@@ -30,7 +30,7 @@ const client = new Client({
 });
 
 // Aumentando o limite de listeners
-client.setMaxListeners(50);
+client.setMaxListeners(100);
 
 const estatisticasKingInstance = require("./Functions/VariaveisEstatisticas");
 const EstatisticasKing = new estatisticasKingInstance();
@@ -286,11 +286,6 @@ client.once('ready', async () => {
         i++;
     }, 5 * 1000);
 });
-
-slash.run(client);
-events.run(client);
-
-client.slashCommands = new Collection();
 
 client.login(config.token).catch((err) => {
     if (err?.message?.includes("intent")) return console.log(`${colors.red(`[LOG]`)} Ativa as Intents do Bot`);

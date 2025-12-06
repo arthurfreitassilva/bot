@@ -234,12 +234,12 @@ module.exports = {
                     await interaction.deferUpdate(); // Defer the interaction
                     let status = await configuracao.get("pagamentos.EfiOnOff") || false;
                     await configuracao.set("pagamentos.EfiOnOff", !status);
-                    await EfiBankConfiguracao(client, interaction);
+                    await EfiBankConfiguracao(client, interaction, 1);
                 }
 
                 if (interaction.customId === `configurarefibank`) {
                     await interaction.deferUpdate(); // Defer the interaction
-                    await EfiBankConfiguracao(client, interaction);
+                    await EfiBankConfiguracao(client, interaction, 1);
                 }
 
                 if (interaction.customId === `alterarcredenciais`) {

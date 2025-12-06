@@ -1,4 +1,3 @@
-const client = require("../../index");
 const Discord = require("discord.js");
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
 const { Painel } = require("../../Functions/Painel");
@@ -117,7 +116,7 @@ module.exports = {
 
             if (interaction.customId == 'editConfigSemi') {
 
-                const dd = configuracao.get(`pagamentos.SemiAutomatico`)
+                const dd = configuracao.get(`pagamentos.SemiAutomatico`) || { pix: '', msg: '' }
 
                 const modalaAA = new ModalBuilder()
                     .setCustomId('ConfigurarPagamentoManual2')

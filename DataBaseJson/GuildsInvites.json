@@ -822,6 +822,21 @@
             "url": "https://discord.gg/X6SCYCdRhN",
             "expiresTimestamp": null,
             "uses": 0
+        },
+        {
+            "code": "XPDQmA2Q",
+            "temporary": false,
+            "maxAge": 604800,
+            "maxUses": 0,
+            "inviterId": "1419837511127142432",
+            "targetUser": null,
+            "targetApplication": null,
+            "targetType": null,
+            "channelId": "1444432880699965511",
+            "createdTimestamp": 1764620271288,
+            "url": "https://discord.gg/XPDQmA2Q",
+            "expiresTimestamp": 1765225071000,
+            "uses": 5
         }
     ]
 }
