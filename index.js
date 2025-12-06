@@ -126,6 +126,9 @@ client.on('interactionCreate', async interaction => {
             } else if (interaction.customId === 'ajudasuflay') {
                 await helpSystem.handleButtonInteraction(interaction, client);
             } else if (interaction.customId === 'createRoles') {
+                // CRITICAL: Defer immediately to prevent timeout
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
+
                 const guild = interaction.guild;
                 const botMember = guild.members.me;
                 const botHighestRole = botMember.roles.highest;
@@ -159,16 +162,17 @@ client.on('interactionCreate', async interaction => {
                     configuracao.set(`ConfigRoles.cargomembro`, createdRoles.find(r => r.name === 'Membro')?.id || configuracao.get(`ConfigRoles.cargomembro`));
                 }
 
-                await interaction.deferReply({ ephemeral: true });
                 await interaction.editReply({
                     content: createdRoles.length > 0
                         ? `✅ Cargos criados com sucesso: ${createdRoles.map(r => `\`${r.name}\``).join(', ')}`
-                        : 'ℹ️ Todos os cargos já existem!',
-                    ephemeral: true
+                        : 'ℹ️ Todos os cargos já existem!'
                 });
 
                 await ConfigRoles(interaction, client);
             } else if (interaction.customId === 'createChannels') {
+                // CRITICAL: Defer immediately to prevent timeout
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
+
                 const guild = interaction.guild;
                 const categoryName = 'Logs Administrativas - DreamPro';
 
@@ -229,12 +233,10 @@ client.on('interactionCreate', async interaction => {
                     }
                 }
 
-                await interaction.deferReply({ ephemeral: true });
                 await interaction.editReply({
                     content: createdChannels.length > 0
                         ? `✅ Canais criados com sucesso na categoria \`${categoryName}\`: ${createdChannels.map(c => `\`${c.name}\``).join(', ')}`
-                        : 'ℹ️ Todos os canais já existem!',
-                    ephemeral: true
+                        : 'ℹ️ Todos os canais já existem!'
                 });
 
                 await ConfigChannels(interaction, client);

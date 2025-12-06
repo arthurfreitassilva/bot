@@ -1,10 +1,11 @@
-const { EmbedBuilder, ApplicationCommandType, ActionRowBuilder, StringSelectMenuBuilder } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandType, ActionRowBuilder, StringSelectMenuBuilder, MessageFlags } = require("discord.js");
 const { configuracao } = require("../../DataBaseJson");
 
 module.exports = {
   name: "ajuda",
   description: "📚 Exibe todos os comandos disponíveis do bot",
   type: ApplicationCommandType.ChatInput,
+  deferEphemeral: false, // Este comando não precisa ser efêmero
 
   run: async (client, interaction) => {
     
@@ -76,10 +77,11 @@ module.exports = {
 
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
-    await interaction.reply({ 
+    // Se já foi deferido, usa editReply; caso contrário, reply
+    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+    await interaction[replyMethod]({ 
       embeds: [embedPrincipal], 
-      components: [row],
-      ephemeral: false 
+      components: [row]
     });
 
     // Coletor para o menu

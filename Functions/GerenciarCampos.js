@@ -17,30 +17,28 @@ const db = new QuickDB();
  */
 async function safeRespond(interaction, payload) {
   try {
-    // Se for componente de mensagem e podemos atualizar
-    if (interaction.isMessageComponent && typeof interaction.update === "function" && !interaction.deferred && !interaction.replied) {
-      // Prefer update quando for um componente
-      return await interaction.update(payload);
-    }
-
     // Se já foi deferido, editar a reply atual
     if (interaction.deferred || interaction.replied) {
-      try {
-        return await interaction.editReply(payload);
-      } catch (err) {
-        // fallback para followUp
-        return await interaction.followUp({ ...payload, flags: MessageFlags.Ephemeral });
-      }
+      return await interaction.editReply(payload);
+    }
+
+    // Se for componente de mensagem e podemos atualizar (não deferido ainda)
+    if (interaction.isMessageComponent() && typeof interaction.update === "function") {
+      // Prefer update quando for um componente
+      return await interaction.update(payload);
     }
 
     // Caso normal: reply
     return await interaction.reply({ ...payload, flags: MessageFlags.Ephemeral });
   } catch (err) {
-    // Último recurso: tentar followUp
-    try {
-      return await interaction.followUp({ ...payload, flags: MessageFlags.Ephemeral });
-    } catch (e) {
-      console.error("safeRespond failure:", err, e);
+    console.error("safeRespond error:", err.message);
+    // Tenta editReply se já foi deferido
+    if (interaction.deferred || interaction.replied) {
+      try {
+        return await interaction.editReply(payload);
+      } catch (editErr) {
+        console.error("safeRespond editReply failed:", editErr.message);
+      }
     }
   }
 }
@@ -67,6 +65,20 @@ function formatCondicoes(cond) {
  */
 async function GerenciarCampos2(interaction, campo, produtoname, update = true, reply = false) {
   try {
+    // CRITICAL: Defer interaction immediately to avoid timeout (3 second limit)
+    if (!interaction.deferred && !interaction.replied) {
+      // For message components (buttons/selects), use deferUpdate; for commands, use deferReply
+      if (interaction.isMessageComponent()) {
+        await interaction.deferUpdate().catch(err => {
+          console.error("Failed to defer update:", err.message);
+        });
+      } else {
+        await interaction.deferReply({ ephemeral: true }).catch(err => {
+          console.error("Failed to defer reply:", err.message);
+        });
+      }
+    }
+
     // Recupera referência do produto/carrinho: se produtoname fornecido, usa ele; senão pega do DB (mensagem)
     let productRef;
     if (produtoname) {
@@ -183,6 +195,20 @@ async function GerenciarCampos2(interaction, campo, produtoname, update = true, 
  */
 async function GerenciarCampos(interaction, produtoname) {
   try {
+    // CRITICAL: Defer interaction immediately to avoid timeout (3 second limit)
+    if (!interaction.deferred && !interaction.replied) {
+      // For message components (buttons/selects), use deferUpdate; for commands, use deferReply
+      if (interaction.isMessageComponent()) {
+        await interaction.deferUpdate().catch(err => {
+          console.error("Failed to defer update:", err.message);
+        });
+      } else {
+        await interaction.deferReply({ ephemeral: true }).catch(err => {
+          console.error("Failed to defer reply:", err.message);
+        });
+      }
+    }
+
     const produto = produtos.get(produtoname);
     if (!produto) {
       return safeRespond(interaction, { content: `Produto ${produtoname} não encontrado.`, embeds: [], components: [] });
