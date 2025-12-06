@@ -2,6 +2,10 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
 const { configuracao } = require("../DataBaseJson");
 
 async function ToolsPanel(interaction, client) {
+
+    // ✅ Bloqueia execução duplicada
+    if (interaction.replied || interaction.deferred) return;
+
     const embed = new EmbedBuilder()
         .setColor(configuracao.get(`Cores.Principal`) || '313838')
         .setTitle('Painel de Ferramentas - DreamPRO')
@@ -10,9 +14,9 @@ async function ToolsPanel(interaction, client) {
 
 Aqui você encontra utilidades para gerenciar e turbinar seu servidor. Selecione uma das opções abaixo para começar:
 
-> \`\🔹\` **Cloners:** Clone canais, cargos e mais!
-> \`\🔹\` **Selfs:** Ferramentas de autoatendimento e automação.
-> \`\🔹\` **Checkers:** Verifique status, tokens e informações.
+> \`🔹\` **Cloners:** Clone canais, cargos e mais!
+> \`🔹\` **Selfs:** Ferramentas de autoatendimento e automação.
+> \`🔹\` **Checkers:** Verifique status, tokens e informações.
 
 Clique em um botão abaixo para acessar a ferramenta desejada!
 `)
@@ -51,14 +55,26 @@ Clique em um botão abaixo para acessar a ferramenta desejada!
                 .setLabel('Voltar')
                 .setEmoji('1371605354605051996')
                 .setStyle(2),
-                new ButtonBuilder()
+
+            new ButtonBuilder()
                 .setCustomId("voltar1")
-                
                 .setEmoji('1309962550149906522')
-                .setStyle(1) // Voltar ao painel principal
+                .setStyle(1)
         );
 
-    await interaction.update({ content: ``, components: [row1, row2], embeds: [embed], files: [] ,ephemeral: true });
+    // ✅ Resposta correta (sem duplicar)
+    if (interaction.isButton()) {
+        await interaction.editReply({
+            embeds: [embed],
+            components: [row1, row2]
+        });
+    } else {
+        await interaction.reply({
+            embeds: [embed],
+            components: [row1, row2],
+            ephemeral: true
+        });
+    }
 }
 
 module.exports = {

