@@ -5,6 +5,9 @@ const { configuracao, Emojis } = require("../DataBaseJson");
 
 async function FormasDePagamentos(interaction) {
 
+    const semiAutoStatus = configuracao.get("pagamentos.SemiAutomatico.status") ?? false;
+    const semiAutoPix = configuracao.get("pagamentos.SemiAutomatico.pix") ?? null;
+
     const embed = new EmbedBuilder()
     .setTitle(`\`\📦\` **Configurar Formas de Pagamento**`)
     .setDescription(`-# > Gerencie abaixo as formas de pagamento disponíveis no sistema.\n> Ative, desative e verifique se estão corretamente configuradas.`)
@@ -31,12 +34,12 @@ async function FormasDePagamentos(interaction) {
         },
         {
             name: `\`\📲\` **Pix Manual**`,
-            value: `> - Status: \`${configuracao.get("pagamentos.SemiAutomatico.status") != true ? "❌ Desabilitado" : "✅ Habilitado"}\`\n> - Chave: \`${configuracao.get("pagamentos.SemiAutomatico.pix") != null ? "✅ Configurada" : "❌ Não configurada"}\``,
+            value: `> - Status: \`${semiAutoStatus != true ? "❌ Desabilitado" : "✅ Habilitado"}\`\n> - Chave: \`${semiAutoPix != null ? "✅ Configurada" : "❌ Não configurada"}\``,
             inline: true
         },
         {
             name: `\`\🏡\` **Nubank & Picpay ( em breve )**`,
-            value: `> - Status: \`\❌\` Desabilitado\n> - Chave: \`${configuracao.get("pagamentos.SemiAutomatico.pix") != null ? "✅ Configurada" : "❌ Não configurada"}\``,
+            value: `> - Status: \`\❌\` Desabilitado\n> - Chave: \`${semiAutoPix != null ? "✅ Configurada" : "❌ Não configurada"}\``,
             inline: true
         }
     )

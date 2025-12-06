@@ -95,5 +95,12 @@
         "feedbackticket": "1444432990963896531",
         "feedback": "1444432990963896531",
         "saídas": "1444433194332983347"
+    },
+    "pagamentos": {
+        "SemiAutomatico": {
+            "status": true,
+            "pix": "88981716946",
+            "msg": "após o pagamento envie o comprovante no ticket"
+        }
     }
 }

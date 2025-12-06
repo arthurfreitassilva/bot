@@ -131,7 +131,7 @@ module.exports = {
                     await interaction.deferUpdate();
                     await interaction.message.edit({ content: `Espere um momento...`, components: [], embeds: [] });
 
-                    const pagamento = configuracao.get(`pagamentos.SemiAutomatico`);
+                    const pagamento = configuracao.get(`pagamentos.SemiAutomatico`) ?? { pix: '', msg: '' };
                     const { qrGenerator } = require('../../Lib/QRCodeLib.js');
                     const qr = new qrGenerator({ imagePath: './Lib/aaaaa.png' });
                     const yy = await carrinhos.get(interaction.channel.id);
@@ -347,8 +347,8 @@ module.exports = {
             }
 
             if (interaction.customId === 'codigocopiaecolaadwdawd') {
-                const pagamento = configuracao.get(`pagamentos.SemiAutomatico`);
-                interaction.reply({ content: `${pagamento.pix}`, ephemeral: true });
+                const pagamento = configuracao.get(`pagamentos.SemiAutomatico`) ?? { pix: '', msg: '' };
+                interaction.reply({ content: `${pagamento?.pix ?? 'Não configurado'}`, ephemeral: true });
             }
 
             if (interaction.customId === 'deletchannel') {

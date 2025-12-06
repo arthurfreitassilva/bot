@@ -93,7 +93,7 @@ module.exports = {
                 let a2 = interaction.fields.getTextInputValue('tokenMP2');
                 let a3 = interaction.fields.getTextInputValue('tokenMP3');
 
-                const atual = await configuracao.get("pagamentos.SemiAutomatico.status")
+                const atual = await configuracao.get("pagamentos.SemiAutomatico.status") ?? false
 
                 configuracao.set(`pagamentos.SemiAutomatico`, { status: atual, pix: a2, msg: a3 })
 
@@ -116,7 +116,7 @@ module.exports = {
 
             if (interaction.customId == 'editConfigSemi') {
 
-                const dd = configuracao.get(`pagamentos.SemiAutomatico`) || { pix: '', msg: '' }
+                const dd = configuracao.get(`pagamentos.SemiAutomatico`) ?? { pix: '', msg: '' }
 
                 const modalaAA = new ModalBuilder()
                     .setCustomId('ConfigurarPagamentoManual2')
@@ -127,7 +127,7 @@ module.exports = {
                     .setLabel(`CHAVE PIX`)
                     .setPlaceholder(`Insira uma chave pix válida`)
                     .setStyle(TextInputStyle.Short)
-                    .setValue(`${dd.pix == null ? '' : dd.pix}`)
+                    .setValue(`${dd?.pix ?? ''}`)
                     .setRequired(true)
 
                 const newnameboteD = new TextInputBuilder()
@@ -135,7 +135,7 @@ module.exports = {
                     .setLabel(`MENSAGEM APÓS REQUISIÇÃO DO PEDIDO`)
                     .setPlaceholder(`Insira aqui uma mensagem, ex: após o pagamento, envie o comprovante aqui.`)
                     .setStyle(TextInputStyle.Short)
-                    .setValue(`${dd.msg == null ? '' : dd.msg}`)
+                    .setValue(`${dd?.msg ?? ''}`)
                     .setRequired(true)
 
                 const firstActionRow6 = new ActionRowBuilder().addComponents(newnameboteE);
@@ -148,7 +148,8 @@ module.exports = {
             }
 
             if (interaction.customId == 'onOffSemi') {
-                if (configuracao.get("pagamentos.SemiAutomatico.status") == false) {
+                const currentStatus = configuracao.get("pagamentos.SemiAutomatico.status") ?? false;
+                if (currentStatus == false) {
                     configuracao.set("pagamentos.SemiAutomatico.status", true);
                     await interaction.update({ content: `${Emojis.get(`loading_emoji`)} Carregando...`, embeds: [], components: [] })
                     semiConfigs(interaction, client);
