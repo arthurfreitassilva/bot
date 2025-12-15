@@ -686,43 +686,57 @@ if (interaction.customId === 'estoquearquivo') {
 
             if (interaction.customId == 'simestoque') {
                 await interaction.update({ content: `🔄 Aguarde...`, components: [] })
-                let estoque
+                
                 const ggg = await db.get(`${interaction.user.id}.delimitadorStock`)
+                
+                if (!ggg || !ggg.estoque || !ggg.produto || !ggg.campo) {
+                    return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)} Erro ao buscar dados do estoque. Tente novamente.`, components: [] });
+                }
+
+                let estoque;
                 if (ggg.delimitador !== null) {
                     const linhasSeparadas = ggg.estoque.split(ggg.delimitador);
                     estoque = linhasSeparadas.map(item => item.trim()).filter(item => item !== '');
-
-
                 } else {
-                    estoque = ggg.estoque.split('\n');
+                    estoque = ggg.estoque.split('\n').map(item => item.trim()).filter(item => item !== '');
                 }
 
+                if (estoque.length === 0) {
+                    return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)} Nenhum item válido de estoque foi encontrado.`, components: [] });
+                }
 
                 const hhhh = produtos.get(`${ggg.produto}.Campos`)
+                
+                if (!hhhh) {
+                    return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)} Produto não encontrado.`, components: [] });
+                }
+
                 const campoParaAtualizar = hhhh.find(campo => campo.Nome === ggg.campo);
 
+                if (!campoParaAtualizar) {
+                    return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)} Campo não encontrado.`, components: [] });
+                }
+
+                // Inicializar array de estoque se não existir
+                if (!Array.isArray(campoParaAtualizar.estoque)) {
+                    campoParaAtualizar.estoque = [];
+                }
 
                 campoParaAtualizar.estoque.push(...estoque);
-
 
                 await produtos.set(`${ggg.produto}.Campos`, hhhh)
                 await produtos.set(`${ggg.produto}.UltimaReposicao`, Date.now())
 
-
-                await interaction.editReply({ content: `🔄 Atualizando estoque...`, components: [] }).then(async msg => {
-
-
-                })
-
                 await interaction.editReply({ content: `🔄 Sincronizando mensagens...`, ephemeral: true })
-                await UpdateMessageProduto(client, ggg.produto)
-
+                
+                try {
+                    await UpdateMessageProduto(client, ggg.produto)
+                } catch (err) {
+                    console.error('Erro ao atualizar mensagem do produto:', err);
+                }
 
                 const ggggg = campoParaAtualizar?.avisar;
-
-                const buttonEnabled = ggggg?.length > 0;
-
-
+                const buttonEnabled = Array.isArray(ggggg) && ggggg.length > 0;
 
                 const row3 = new ActionRowBuilder()
                     .addComponents(
@@ -734,11 +748,13 @@ if (interaction.customId === 'estoquearquivo') {
                             .setDisabled(!buttonEnabled)
                     );
 
-
                 await interaction.editReply({
-                    components: [row3], content: `${Emojis.get(`positive_dream`)} Estoque de ${ggg.campo} atualizado.`
+                    components: [row3], 
+                    content: `${Emojis.get(`positive_dream`)} Estoque de \`${ggg.campo}\` atualizado com sucesso! ${estoque.length} itens adicionados.`
                 })
 
+                // Limpar dados temporários
+                await db.delete(`${interaction.user.id}.delimitadorStock`).catch(() => {});
             }
 
 
