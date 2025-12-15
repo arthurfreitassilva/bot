@@ -224,29 +224,42 @@ module.exports = {
                 const hhhh = produtos.get(`${ggg.name}.Campos`)
                 const campoParaAtualizar = hhhh.find(campo => campo.Nome === ggg.camposelect);
 
-                if (idcargo !== '') {
-                    const ddd = await interaction.guild.roles.fetch(idcargo)
-                    if (ddd == null) return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Cargo inserido \`${idcargo}\` inválido.` })
+                if (!campoParaAtualizar) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Campo não encontrado.` });
                 }
 
-                if (valorminimo !== '') {
+                if (idcargo !== '' && idcargo.trim() !== '') {
+                    try {
+                        const ddd = await interaction.guild.roles.fetch(idcargo.trim())
+                        if (ddd == null) return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Cargo inserido \`${idcargo}\` inválido.` })
+                    } catch (error) {
+                        return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Erro ao buscar cargo. Verifique o ID.` })
+                    }
+                }
+
+                if (valorminimo !== '' && valorminimo.trim() !== '') {
                     valorminimo = parseInt(valorminimo, 10);
-                    if (!Number.isInteger(valorminimo)) {
-                        return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Quantidade inserida \`${valorminimo}\` inválido. Insira apenas números inteiros.` });
+                    if (!Number.isInteger(valorminimo) || valorminimo < 0) {
+                        return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Quantidade mínima \`${valorminimo}\` inválida. Insira apenas números inteiros positivos.` });
                     }
                 }
 
-                if (valormaximo !== '') {
+                if (valormaximo !== '' && valormaximo.trim() !== '') {
                     valormaximo = parseInt(valormaximo, 10);
-                    if (!Number.isInteger(valormaximo)) {
-                        return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Quantidade inserida \`${valormaximo}\` inválido. Insira apenas números inteiros.` });
+                    if (!Number.isInteger(valormaximo) || valormaximo < 0) {
+                        return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Quantidade máxima \`${valormaximo}\` inválida. Insira apenas números inteiros positivos.` });
                     }
+                }
+
+                // Validar se valorminimo não é maior que valormaximo
+                if (valorminimo !== '' && valormaximo !== '' && valorminimo > valormaximo) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} A quantidade mínima não pode ser maior que a máxima.` });
                 }
 
                 campoParaAtualizar.condicao = {
-                    ...(idcargo !== '' ? { idcargo } : {}),
-                    ...(valorminimo !== '' ? { valorminimo } : {}),
-                    ...(valormaximo !== '' ? { valormaximo } : {}),
+                    ...(idcargo !== '' && idcargo.trim() !== '' ? { idcargo: idcargo.trim() } : {}),
+                    ...(valorminimo !== '' && valorminimo.trim() !== '' ? { valorminimo } : {}),
+                    ...(valormaximo !== '' && valormaximo.trim() !== '' ? { valormaximo } : {}),
                 };
 
                 await produtos.set(`${ggg.name}.Campos`, hhhh)
