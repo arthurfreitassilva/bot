@@ -7,6 +7,7 @@ module.exports = {
   name: "gerenciar_produto",
   description: "[🤖] Use para configurar minhas funções",
   type: ApplicationCommandType.ChatInput,
+  autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
   options: [{ name: "product", description: "-", type: 3, required: true, autocomplete: true }],
   default_member_permissions: PermissionFlagsBits.Administrator,
 
