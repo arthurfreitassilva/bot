@@ -270,21 +270,28 @@ module.exports = {
 
             if (interaction.customId == 'addestoquemodalaaa') {
                 const ggg = await db.get(interaction.message.id)
+                
+                if (!ggg || !ggg.camposelect) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Erro ao identificar o campo. Tente novamente.` });
+                }
+
                 let idcargo = interaction.fields.getTextInputValue('tokenMP');
 
+                if (!idcargo || idcargo.trim() === '') {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Nenhum item de estoque foi fornecido.` });
+                }
 
+                const linhas = idcargo.split('\n').filter(linha => linha.trim() !== ''); // Remove linhas vazias
+                
+                if (linhas.length === 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Nenhum item válido de estoque foi fornecido.` });
+                }
 
-                const linhas = idcargo.split('\n');
                 const tresPrimeirasLinhas = linhas.slice(0, 3); // Pegando as três primeiras linhas
-
-
-
                 const linhasNumeradas = tresPrimeirasLinhas.map((linha, index) => `${index + 1}・${linha}`);
-
 
                 const row4 = new ActionRowBuilder()
                     .addComponents(
-
                         new ButtonBuilder()
                             .setCustomId("simestoque")
                             .setLabel('Sim')
@@ -298,20 +305,15 @@ module.exports = {
                             .setStyle(2)
                     )
 
-
                 interaction.reply({
                     components: [row4],
                     content: `Total de \`${linhas.length}\` itens detectados, cada item será adicionado como um produto no estoque de \`${ggg.camposelect}\`, exemplo:\`\`\`${linhasNumeradas.join('\n')}\`\`\`\nEsse valor será entregue como **uma** unidade para o cliente.\n**Deseja adicionar o valor de \`${linhas.length}\` itens ao estoque de \`${ggg.camposelect}\`?**`,
                     ephemeral: true
                 }).then(async msg222 => {
                     await db.set(`${interaction.user.id}.delimitadorStock`, { estoque: idcargo, delimitador: null, produto: ggg.name, campo: ggg.camposelect });
+                }).catch(err => {
+                    console.error('Erro ao salvar delimitador de estoque:', err);
                 });
-
-
-
-                // const hhhh = produtos.get(`${ggg.name}.Campos`)
-                //  const campoParaAtualizar = hhhh.find(campo => campo.Nome === ggg.camposelect);
-
             }
 
 
