@@ -13,6 +13,7 @@ module.exports = {
   name: "remove_perm",
   description: "[⭐️] remover a permissão de um usuário",
   type: Discord.ApplicationCommandType.ChatInput,
+  autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
   options: [
     {
       name: "user",
