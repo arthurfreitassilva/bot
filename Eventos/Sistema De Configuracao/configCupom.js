@@ -22,7 +22,7 @@ module.exports = {
                 let qtd = interaction.fields.getTextInputValue('tokenMP2');
                 let dias = interaction.fields.getTextInputValue('tokenMP3');
 
-                if (Number.isInteger(qtd)) return interaction.reply({ content: `❌ O número de desconto inserio é inválido \`${qtd}\``, ephemeral: true })
+                if (!Number.isInteger(Number(qtd)) || Number(qtd) < 1 || Number(qtd) > 100) return interaction.reply({ content: `❌ O número de desconto inserido é inválido \`${qtd}\`. Deve ser entre 1 e 100.`, ephemeral: true })
                 if (dias !== '') {
                     if (Number.isInteger(dias)) return interaction.reply({ content: `❌ O número de dias inserio é inválido \`${dias}\``, ephemeral: true })
 
