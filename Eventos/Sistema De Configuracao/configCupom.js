@@ -24,7 +24,7 @@ module.exports = {
 
                 if (!Number.isInteger(Number(qtd)) || Number(qtd) < 1 || Number(qtd) > 100) return interaction.reply({ content: `❌ O número de desconto inserido é inválido \`${qtd}\`. Deve ser entre 1 e 100.`, ephemeral: true })
                 if (dias !== '') {
-                    if (Number.isInteger(dias)) return interaction.reply({ content: `❌ O número de dias inserio é inválido \`${dias}\``, ephemeral: true })
+                    if (!Number.isInteger(Number(dias)) || Number(dias) < 1) return interaction.reply({ content: `❌ O número de dias inserido é inválido \`${dias}\`. Deve ser um inteiro positivo.`, ephemeral: true })
 
 
                 }
