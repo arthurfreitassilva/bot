@@ -21,6 +21,7 @@ module.exports = {
   description: "[ Gerador ] Gere algum serviço do bot",
   type: ApplicationCommandType.ChatInput,
   default_member_permissions: PermissionFlagsBits.Administrator,
+  autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
 
   options: [
     {
