@@ -536,6 +536,13 @@ module.exports = {
                 await UpdateMessageProduto(client, ggg.name)
             }
 
+            // Função auxiliar para validar URLs
+            function isURL(str) {
+                if (!str || str.trim() === '') return false;
+                const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+                return urlRegex.test(str);
+            }
+
             if (interaction.customId === 'Editar') {
                 await interaction.update({ embeds: [], components: [], content: `${Emojis.get(`loading_emoji`)} Aguarde...` })
 
@@ -547,12 +554,20 @@ module.exports = {
 
                 const ggg = await db.get(interaction.message.id);
 
+                // Validação melhorada de entrega automática
                 if (enttrega !== '') {
-                    enttrega = (enttrega.toLowerCase() === 'não') ? 'Não' : 'Sim';
+                    const entregaLower = enttrega.toLowerCase().trim();
+                    if (entregaLower === 'não' || entregaLower === 'nao') {
+                        enttrega = 'Não';
+                    } else if (entregaLower === 'sim') {
+                        enttrega = 'Sim';
+                    } else {
+                        return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  Entrega automática deve ser "sim" ou "não".` });
+                    }
                     produtos.set(`${ggg.name}.Config.entrega`, enttrega);
                 }
 
-                produtos.set(`${ggg.name}.Config.name`, nome);
+                produtos.set(`${ggg.name}.Config.name`, nome.trim());
 
                 if (desc !== '') {
                     produtos.set(`${ggg.name}.Config.desc`, desc);
@@ -561,30 +576,29 @@ module.exports = {
                 }
 
                 // Verificar se icon é uma URL válida
-                if (icon !== '' && isURL(icon)) {
-                    produtos.set(`${ggg.name}.Config.icon`, icon);
+                if (icon !== '' && icon.trim() !== '') {
+                    if (isURL(icon)) {
+                        produtos.set(`${ggg.name}.Config.icon`, icon);
+                    } else {
+                        return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  URL do ícone inválida. Use formato: https://exemplo.com/imagem.png` });
+                    }
                 } else {
                     produtos.delete(`${ggg.name}.Config.icon`);
                 }
 
                 // Verificar se banner é uma URL válida
-                if (banner !== '' && isURL(banner)) {
-                    produtos.set(`${ggg.name}.Config.banner`, banner);
+                if (banner !== '' && banner.trim() !== '') {
+                    if (isURL(banner)) {
+                        produtos.set(`${ggg.name}.Config.banner`, banner);
+                    } else {
+                        return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  URL do banner inválida. Use formato: https://exemplo.com/imagem.png` });
+                    }
                 } else {
                     produtos.delete(`${ggg.name}.Config.banner`);
                 }
 
                 GerenciarProduto(interaction, 1, ggg.name);
             }
-
-
-
-            function isURL(str) {
-                // Expressão regular para verificar se a string é uma URL válida
-                const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-                return urlRegex.test(str);
-            }
-
 
             if (interaction.customId === 'sdaju11111idsjjsdua') {
 
@@ -594,40 +608,64 @@ module.exports = {
                 let icon = interaction.fields.getTextInputValue('tokenMP4');
                 let banner = interaction.fields.getTextInputValue('tokenMP5');
 
-                nome = nome.replace('.', '');
+                nome = nome.replace(/\./g, '').trim();
 
-
-
-                if (enttrega !== 'não') {
-                    enttrega = 'Sim'
-                } else {
-                    enttrega = 'Não'
+                // Validação de nome vazio
+                if (!nome || nome.length === 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Nome do produto não pode ser vazio.` });
                 }
 
-                if (desc == '') {
-                    desc = 'Não definido'
+                // Validação melhorada de entrega automática
+                const entregaLower = enttrega.toLowerCase().trim();
+                if (entregaLower === 'não' || entregaLower === 'nao') {
+                    enttrega = 'Não';
+                } else if (entregaLower === 'sim') {
+                    enttrega = 'Sim';
+                } else {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Entrega automática deve ser "sim" ou "não".` });
+                }
+
+                if (desc == '' || !desc) {
+                    desc = 'Não definido';
                 }
 
                 await interaction.update({ embeds: [], components: [], content: `${Emojis.get(`loading_emoji`)} Aguarde...` })
 
+                if (produtos.get(`${nome}`) !== null) return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  Opss, ja existe um produto com esse nome.` })
 
-                if (produtos.get(`${nome}`) !== null) return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  Opss, ja existe um produto com esse nome.` })//
+                // Validação de URLs antes de salvar
+                let iconUrl = '';
+                let bannerUrl = '';
+
+                if (icon && icon.trim() !== '') {
+                    if (isURL(icon)) {
+                        iconUrl = icon;
+                    } else {
+                        return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  URL do ícone inválida. Use formato: https://exemplo.com/imagem.png` });
+                    }
+                }
+
+                if (banner && banner.trim() !== '') {
+                    if (isURL(banner)) {
+                        bannerUrl = banner;
+                    } else {
+                        return interaction.editReply({ content: `${Emojis.get(`negative_dreamm67`)}  URL do banner inválida. Use formato: https://exemplo.com/imagem.png` });
+                    }
+                }
 
                 produtos.set(`${nome}`, {
                     Config: {
                         name: nome,
                         desc: desc,
                         entrega: enttrega,
-                        icon: icon,
-                        banner: banner
+                        ...(iconUrl && { icon: iconUrl }),
+                        ...(bannerUrl && { banner: bannerUrl })
                     },
                     Campos: [],
                     Cupom: []
                 })
 
                 GerenciarProduto(interaction, 1, nome)
-
-
             }
         }
 
