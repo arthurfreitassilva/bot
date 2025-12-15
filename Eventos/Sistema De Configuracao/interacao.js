@@ -497,31 +497,36 @@ module.exports = {
                 let emojicampo = interaction.fields.getTextInputValue('tokenMP7');
             
                 // Se o campo emoji estiver vazio ou não definido, adiciona o emoji padrão
-                if (!emojicampo) {
+                if (!emojicampo || emojicampo.trim() === '') {
                     emojicampo = '<:CarrinhoDeCompras:1250848496987406487>';
                 }
             
-                nomecampo = nomecampo.replace('.', '');
+                nomecampo = nomecampo.replace(/\./g, '').trim();
                 const ggg = await db.get(interaction.message.id);
 
+                // Validação melhorada de preço
+                const precoNumerico = Number(precocampo);
+                if (isNaN(precoNumerico) || precoNumerico < 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Preço inserido \`${precocampo}\` inválido. Deve ser um número positivo.` });
+                }
 
-
-                if (isNaN(precocampo)) 
-                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Preço inserido \`${precocampo}\` inválido.` })
+                // Validação de nome vazio
+                if (!nomecampo || nomecampo.length === 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Nome do campo não pode ser vazio.` });
+                }
 
                 const produtoExistente = produtos
                     .filter(produto => produto.data.Campos)
                     .some(produto => produto.data.Campos.some(campo => campo.Nome === nomecampo));
 
-
-
                 if (produtoExistente) return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)}  Nome do campo já existente.` })
 
                 produtos.push(`${ggg.name}.Campos`, {
                     estoque: [],
-                    valor: Number(precocampo),
+                    valor: precoNumerico,
                     Nome: nomecampo,
-                    desc: desccampo,
+                    desc: desccampo || '',
+                    emoji: emojicampo,
                     criado: Date.now()
                 })
 
@@ -529,8 +534,6 @@ module.exports = {
 
                 interaction.followUp({ content: `${Emojis.get(`positive_dream`)} Campo adicionado.`, ephemeral: true })
                 await UpdateMessageProduto(client, ggg.name)
-
-
             }
 
             if (interaction.customId === 'Editar') {
