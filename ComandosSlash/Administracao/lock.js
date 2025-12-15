@@ -13,6 +13,7 @@ module.exports = {
     name: "lock",
     description: "[🔒] Use para trancar o canal",
     type: ApplicationCommandType.ChatInput,
+    autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
     default_member_permissions: PermissionFlagsBits.Administrator,
 
     run: async (client, interaction) => {
