@@ -12,6 +12,7 @@ module.exports = {
     name: "stockgen",
     description: "[ Gerador ] Veja os serviços do bot",
     type: ApplicationCommandType.ChatInput,
+    autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
     default_member_permissions: PermissionFlagsBits.Administrator,
     run: async (client, interaction) => {
         const stockDirectory = path.join(__dirname, "../../Stock");
