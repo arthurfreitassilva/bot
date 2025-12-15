@@ -14,6 +14,7 @@ module.exports = {
   name: "cupom",
   description: "[🤖] Criar e configurar cupons",
   type: ApplicationCommandType.ChatInput,
+  autoDeferReply: false, // Desabilita defer automático para evitar conflito com replies diretos
   options: [
     { name: "name", description: "-", type: Discord.ApplicationCommandOptionType.String, required: true },
     { name: "discount", description: "-", type: Discord.ApplicationCommandOptionType.Number, required: true },
