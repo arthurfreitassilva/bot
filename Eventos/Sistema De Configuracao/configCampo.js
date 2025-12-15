@@ -163,17 +163,31 @@ module.exports = {
                 let emoji = interaction.fields.getTextInputValue('tokenMP7');
             
                 // Se o campo emoji estiver vazio ou indefinido, adiciona o emoji padrão
-                if (!emoji) {
+                if (!emoji || emoji.trim() === '') {
                     emoji = '<:carrinho1:1351387558680072292>';
                 }
             
                 const hhhh = produtos.get(`${ggg.name}.Campos`);
             
                 const campoParaAtualizar = hhhh.find(campo => campo.Nome === ggg.camposelect);
+
+                if (!campoParaAtualizar) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Campo não encontrado.` });
+                }
             
-                preco = parseFloat(preco.replace(",", "."));
-                if (isNaN(preco)) {
-                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Preço inserido \`${preco}\` inválido.` });
+                // Corrigir parsing de preço formatado (ex: "1.234,56" ou "1234,56" ou "12.34")
+                // Remove todos os pontos (separadores de milhar) e troca vírgula por ponto (decimal)
+                let precoLimpo = preco.replace(/\./g, '').replace(',', '.');
+                let precoNumerico = parseFloat(precoLimpo);
+                
+                if (isNaN(precoNumerico) || precoNumerico < 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Preço inserido \`${preco}\` inválido. Deve ser um número positivo.` });
+                }
+
+                // Validação de nome vazio
+                nomecampo = nomecampo.trim();
+                if (!nomecampo || nomecampo.length === 0) {
+                    return interaction.reply({ ephemeral: true, content: `${Emojis.get(`negative_dreamm67`)} Nome do campo não pode ser vazio.` });
                 }
             
                 if (ggg.camposelect !== nomecampo) {
@@ -187,9 +201,9 @@ module.exports = {
                 }
             
                 // Atualizando o campo com os novos valores
-                campoParaAtualizar.valor = preco;
+                campoParaAtualizar.valor = precoNumerico;
                 campoParaAtualizar.Nome = nomecampo;
-                campoParaAtualizar.desc = desc;
+                campoParaAtualizar.desc = desc || '';
                 campoParaAtualizar.emoji = emoji;
             
                 await produtos.set(`${ggg.name}.Campos`, hhhh);
