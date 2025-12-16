@@ -109,13 +109,13 @@ async function Gerenciar2(interaction, client) {
 
     const row1 = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId("criarproduto")
+        .setCustomId("criarrrr")
         .setLabel("Criar Produto")
         .setEmoji("1246952363143729265")
         .setStyle(ButtonStyle.Success),
 
       new ButtonBuilder()
-        .setCustomId("gerenciarProdutos")
+        .setCustomId("voltar3")
         .setLabel("Gerenciar Produtos")
         .setEmoji("1178079212700188692")
         .setStyle(ButtonStyle.Primary),
