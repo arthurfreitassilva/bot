@@ -120,7 +120,10 @@ module.exports = {
                     configuracao.delete('Instrucoes.mensagem');
                 }
 
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] })
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
+                
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
                 await Gerenciar2(interaction, client)
                 await interaction.followUp({ content: `${Emojis.get(`positive_dream`)} Instruções definidas com sucesso!`, ephemeral: true });
             }
