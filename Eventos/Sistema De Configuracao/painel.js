@@ -2140,8 +2140,10 @@ client.on('interactionCreate', async (interaction) => {
             }
 
             if (interaction.customId == "altMoeda") {
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
 
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] });
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
 
                 moedaConfig(interaction, client);
 
