@@ -2151,8 +2151,10 @@ client.on('interactionCreate', async (interaction) => {
             
 
             if (interaction.customId == "protecaoBot") {
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
 
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] });
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
 
                 const owners = owner.map(rs => `<@${rs}>`).join(', ')
 
