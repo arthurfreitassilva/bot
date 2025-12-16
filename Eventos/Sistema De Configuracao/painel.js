@@ -495,8 +495,10 @@ client.on('interactionCreate', async interaction => {
             const option = interaction.values[0];
 
             if (option == "permsConfig") {
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
 
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] })
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
 
                 gerenciarPerms(interaction, client);
 
