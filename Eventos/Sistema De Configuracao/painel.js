@@ -2438,18 +2438,27 @@ if (interaction.customId.startsWith('moderacaoslatestebot')) {
                         )
                 )
 
-                await interaction.update({ content: ``, embeds: [], components: [selectmenu] })
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
+                
+                await safeReply(interaction, { content: ``, embeds: [], components: [selectmenu] }, { ephemeral: false });
             }
             if (interaction.customId == "voltarProtect") {
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] })
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
+                
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
                 protectConfig(interaction, client);
             }
             if (interaction.customId == "addcanalboasvindas") {
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
+                
                 const maxChannels = interaction.guild.channels.cache.filter(channel => channel.type === ChannelType.GuildText).size;
 
                 const botao = CriarSelectChannel(client, interaction, 'addcanalboasvindas', 'Selecione um canal para adicionar', interaction?.guild?.channels?.cache?.filter(channel => channel.type === ChannelType.GuildText).size || 1);
 
-                await interaction.update({ content: `Selecione um canal para adicionar`, embeds: [], components: botao })
+                await safeReply(interaction, { content: `Selecione um canal para adicionar`, embeds: [], components: botao }, { ephemeral: false });
             }
             if (interaction.customId == "removercanalboasvindas") {
 
