@@ -95,4 +95,120 @@ async function Painel(interaction, client, config = { email: "" }) {
   }
 }
 
-module.exports = { Painel };
+async function Gerenciar2(interaction, client) {
+  try {
+    const embed = new EmbedBuilder()
+      .setColor(configuracao.get("Cores.Principal") || "#00FFFF")
+      .setTitle(`${Emojis.get(`shop`)} Marketplace`)
+      .setDescription(`-# 🛒 Configure seu sistema de vendas e produtos.`)
+      .setFooter({ 
+        text: `${interaction.guild.name} - Painel de vendas`,
+        iconURL: interaction.guild.iconURL() 
+      })
+      .setTimestamp();
+
+    const row1 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("criarproduto")
+        .setLabel("Criar Produto")
+        .setEmoji("1246952363143729265")
+        .setStyle(ButtonStyle.Success),
+
+      new ButtonBuilder()
+        .setCustomId("gerenciarProdutos")
+        .setLabel("Gerenciar Produtos")
+        .setEmoji("1178079212700188692")
+        .setStyle(ButtonStyle.Primary),
+
+      new ButtonBuilder()
+        .setCustomId("formasdepagamentos")
+        .setLabel("Formas de Pagamento")
+        .setEmoji("1309962449696456764")
+        .setStyle(ButtonStyle.Primary)
+    );
+
+    const row2 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("configcargos")
+        .setLabel("Configurar Cargos")
+        .setEmoji("1309962502834229268")
+        .setStyle(ButtonStyle.Secondary),
+
+      new ButtonBuilder()
+        .setCustomId("personalizarcanais")
+        .setLabel("Configurar Canais")
+        .setEmoji("1309962501877923931")
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+    const row3 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("voltar00")
+        .setLabel("Voltar")
+        .setEmoji("1305590970062082078")
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+    await safeReply(interaction, {
+      content: "",
+      embeds: [embed],
+      components: [row1, row2, row3]
+    });
+
+  } catch (error) {
+    console.error("Erro no Gerenciar2:", error);
+    await safeReply(interaction, { content: "❌ Erro ao carregar painel de marketplace." });
+  }
+}
+
+async function definirduvidas(interaction, client) {
+  try {
+    const embed = new EmbedBuilder()
+      .setColor(configuracao.get("Cores.Principal") || "#00FFFF")
+      .setTitle(`${Emojis.get(`question`)} Sistema de Dúvidas`)
+      .setDescription(`-# ❓ Configure o botão de dúvidas para seus clientes.`)
+      .addFields(
+        { 
+          name: "Botão Configurado", 
+          value: configuracao.get('BotaoDuvidas.nomebotao') ? `✅ ${configuracao.get('BotaoDuvidas.nomebotao')}` : "❌ Não configurado",
+          inline: true 
+        },
+        { 
+          name: "Link", 
+          value: configuracao.get('BotaoDuvidas.linkbotao') ? `${configuracao.get('BotaoDuvidas.linkbotao').substring(0, 50)}...` : "Nenhum",
+          inline: true 
+        }
+      )
+      .setFooter({ 
+        text: `${interaction.guild.name}`,
+        iconURL: interaction.guild.iconURL() 
+      })
+      .setTimestamp();
+
+    const row1 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("botaoduvidas")
+        .setLabel("Configurar Botão")
+        .setEmoji("1377455293595648061")
+        .setStyle(ButtonStyle.Primary),
+
+      new ButtonBuilder()
+        .setCustomId("voltar00")
+        .setLabel("Voltar")
+        .setEmoji("1305590970062082078")
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+    await safeReply(interaction, {
+      content: "",
+      embeds: [embed],
+      components: [row1]
+    });
+
+  } catch (error) {
+    console.error("Erro no definirduvidas:", error);
+    await safeReply(interaction, { content: "❌ Erro ao carregar sistema de dúvidas." });
+  }
+}
+
+module.exports = { Painel, Gerenciar2, definirduvidas };
