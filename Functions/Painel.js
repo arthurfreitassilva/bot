@@ -115,7 +115,7 @@ async function Gerenciar2(interaction, client) {
         .setStyle(ButtonStyle.Success),
 
       new ButtonBuilder()
-        .setCustomId("voltar3")
+        .setCustomId("gerenciarotemae")
         .setLabel("Gerenciar Produtos")
         .setEmoji("1178079212700188692")
         .setStyle(ButtonStyle.Primary),
