@@ -2496,7 +2496,10 @@ if (interaction.customId.startsWith('moderacaoslatestebot')) {
                         .setStyle(2)
                 )
 
-                await interaction.update({ content: `Selecione um canal para remover`, embeds: [], components: [select, row] });
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
+                
+                await safeReply(interaction, { content: `Selecione um canal para remover`, embeds: [], components: [select, row] }, { ephemeral: false });
             }
             if (interaction.customId.startsWith('voltarfunctioncanais_')) {
                 let nomeFunction = interaction.customId.split('_')[1];
