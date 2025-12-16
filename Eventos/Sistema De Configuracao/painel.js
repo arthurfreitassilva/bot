@@ -44,6 +44,7 @@ const discordTranscripts = require('discord-html-transcripts');
 const { StringSelectMenuOptionBuilder } = require("discord.js");
 const { Emojis } = require("../../DataBaseJson");
 const { UpdateAllMessagesProduct } = require("../../Functions/SenderMessagesOrUpdates.js");
+const { ensureDeferred, safeReply } = require("../../Functions/InteractionHelper");
 
 
 module.exports = {
