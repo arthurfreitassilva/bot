@@ -2296,8 +2296,10 @@ if (interaction.customId.startsWith('moderacaoslatestebot')) {
             }
 
             if (interaction.customId.startsWith('voltar00')) {
+                // Defer immediately to prevent timeout
+                await ensureDeferred(interaction, { update: true });
 
-                await interaction.update({ content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] })
+                await safeReply(interaction, { content: `${Emojis.get(`loading_dreamapps`)} Carregando...`, embeds: [], components: [] }, { ephemeral: false });
 
                 Painel(interaction, client)
 
